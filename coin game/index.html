@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>3D Coin Collector</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial;
+        }
+
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+
+            color: white;
+            font-size: 25px;
+            font-weight: bold;
+
+            z-index: 10;
+        }
+
+        #message {
+            position: absolute;
+
+            top: 50%;
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+
+            text-align: center;
+
+            z-index: 10;
+        }
+
+    </style>
+
+
+    <script type="importmap">
+
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+                "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+            }
+        }
+
+    </script>
+
+</head>
+
+
+<body>
+
+    <div id="score">
+        Coins: 0
+    </div>
+
+
+    <div id="message"></div>
+
+
+    <script type="module"
+        src="index.js">
+    </script>
+
+</body>
+
+</html>
