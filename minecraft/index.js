@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { OrbitControls } from "jsm/controls/OrbitControls.js";
 
 const scene = new THREE.Scene();
 
@@ -15,6 +16,10 @@ const renderer = new THREE.WebGLRenderer({antialias : true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 document.body.appendChild(renderer.domElement);
+
+const controls  = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.003;
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
 
@@ -39,6 +44,45 @@ scene.add(ground);
 const mouse = new THREE.Vector2();
 
 const raycaster = new THREE.Raycaster();
+
+let blockColor = new THREE.Color();
+
+const keys = {};
+
+window.addEventListener(
+    "keydown",
+    function(event)
+    {
+        keys[event.key.toLowerCase()] = true;
+    }
+);
+
+window.addEventListener(
+    "keyup",
+    function(event)
+    {
+        keys[event.key.toLowerCase()] = false;
+    }
+);
+
+function setColor() {
+
+    if (keys["a"]) {
+        blockColor.set(0xffffff);
+    }
+
+    if (keys["b"]) {
+        blockColor.set(0x0000ff);
+    }
+    
+    if (keys["c"]) {
+        blockColor.set(0xffff00);
+    }
+
+    if (keys["d"]) {
+        blockColor.set(0x00ff00);
+    }
+}
 
 const blocks = [];
 
@@ -102,6 +146,8 @@ function createBlock(position)
 
     const block = new THREE.Mesh(geometry, material);
 
+    block.material.color.set(blockColor);
+
     block.position.copy(position);
 
     scene.add(block);
@@ -123,6 +169,10 @@ function animate(currentTime)
     const deltaTime = (currentTime - previousTime) / 1000;
 
     previousTime = currentTime;
+
+    setColor();
+
+    controls.update();
 
     renderer.render(scene, camera);
 }
