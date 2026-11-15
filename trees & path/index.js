@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from "jsm/controls/OrbitControls.js";
+import { RoundedBoxGeometry } from "jsm/geometries/RoundedBoxGeometry.js";
 
 // 1. MAIN SCENE AND CAMERA
 const scene = new THREE.Scene();
@@ -8,7 +9,7 @@ scene.background = new THREE.Color(0x080818);
 const camera = new THREE.PerspectiveCamera(
 60, window.innerWidth / window.innerHeight, 0.1, 100
 );
-camera.position.set(0, 5, 50);
+camera.position.set(0, 2, 50);
 camera.lookAt(0, 1.5, -100);
 
 // 2. RENDERER
@@ -22,7 +23,7 @@ const controls  = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.003;
 
-function createPlatform(x, y, z, width, height, depth, color) {
+function createBox(x, y, z, width, height, depth, color) {
 
     const geometry = new THREE.BoxGeometry(
         width,
@@ -36,14 +37,27 @@ function createPlatform(x, y, z, width, height, depth, color) {
         roughness: 0.4
     });
 
-    const platform = new THREE.Mesh(geometry, material);
+    const box = new THREE.Mesh(geometry, material);
 
-    platform.position.set(x, y, z);
+    box.position.set(x, y, z);
 
-    platform.castShadow = true;
-    platform.receiveShadow = true;
+    box.castShadow = true;
+    box.receiveShadow = true;
 
-    return platform;
+    return box;
+}
+
+function createRoundedBox(x, y, z, width, height, depth, color) {
+    const geometry = new RoundedBoxGeometry(width, height, depth);
+    const material = new THREE.MeshStandardMaterial( { color: color } );
+    const cube = new THREE.Mesh( geometry, material );
+
+    cube.position.set(x, y, z);
+
+    cube.castShadow = true;
+    cube.receiveShadow = true;
+
+    return cube;
 }
 
 function createTower(x, z, height, width, color) {
@@ -147,15 +161,28 @@ function createTree(posX, posZ, rTop, rBottom, height, spheres) {
 }
 
 function createTrees(totalTrees) {
+    let x = 0;
+    let z = 50;
     
     for (let i = 0; i < totalTrees; i++) {
-        const x = THREE.MathUtils.randFloat(-20, 20);
-        const z = THREE.MathUtils.randFloat(-40, 40);
+        const errX = THREE.MathUtils.randFloat(-0.6, 0.6);
+        const errZ = THREE.MathUtils.randFloat(-1, 1);
+        // const x = THREE.MathUtils.randFloat(-20, 20);
+        // const z = THREE.MathUtils.randFloat(-40, 40);
+        if (i % 2 === 0) {
+            x = 3.5;
+            z -= 10;
+        } else {
+            x = -3.5;
+        }
 
-        const rTop = THREE.MathUtils.randFloat(0.4, 1.3);
-        const rBottom = THREE.MathUtils.randFloat(rTop*1.3, rTop*1.8);
+        x += errX;
+        z += errZ;
 
-        const height = THREE.MathUtils.randFloat(6, 12);
+        const rTop = THREE.MathUtils.randFloat(0.4, 1);
+        const rBottom = THREE.MathUtils.randFloat(rTop*1.3, rTop*1.5);
+
+        const height = THREE.MathUtils.randFloat(6, 10);
 
         const spheres = THREE.MathUtils.randFloat(height, height*2);
 
@@ -163,13 +190,40 @@ function createTrees(totalTrees) {
     }
 }
 
-createTrees(10);
+createTrees(20);
+
+function createSofa(posX, posY, posZ, seats, seatSize) {
+    const sofa = new THREE.Group();
+
+    if (seats === 1) {
+        const height = seatSize*0.7;
+        const seat = createRoundedBox(0, height/2, 0, seatSize, height, seatSize/1.2, 0x612E4F);
+
+        sofa.add(seat);
+
+        const leftSide = createRoundedBox(seatSize/2, height*1.3/2, 0, seatSize/3, height*1.3, seatSize, 0x572946);
+        const rightSide = createRoundedBox(-seatSize/2, height*1.3/2, 0, seatSize/3, height*1.3, seatSize, 0x572946);
+
+        sofa.add(leftSide);
+        sofa.add(rightSide);
+
+        const back = createRoundedBox(0, height, -seatSize/2, seatSize, height*2, seatSize/3, 0x572946);
+        
+        sofa.add(back);
+    }
+
+    sofa.position.set(posX, posY, posZ);
+
+    return sofa;
+}
+
+//scene.add(createSofa(0, 0, 0, 1, 2));
 
 // 3. MAIN SCENE LIGHTING
 scene.add(new THREE.AmbientLight(0xffffff, 1.5));
 
 const mainLight = new THREE.DirectionalLight(0xffffff, 2);
-mainLight.position.set(3, 5, 5);
+mainLight.position.set(0, 20, 0);
 scene.add(mainLight);
 
 const groundGeometry = new THREE.BoxGeometry(
@@ -195,22 +249,27 @@ scene.add(ground);
 
 const platforms = [];
 
-function createSteps(){
+function createSteps(totalSteps){
     let z = 45;
 
-    for (let i = 0; i < 20; i++) {
-        let x = 0.5;
-        let err = THREE.MathUtils.randFloat(-0.2, 0.1);
+    for (let i = 0; i < totalSteps; i++) {
+        let x = 0.7;
+        let err = THREE.MathUtils.randFloat(-0.25, 0.25);
+
+        let width = 1.2, depth = 1.2;
 
         if (i % 2 == 0) {
-            x = 0.5;
+            x = 0.7;
         } else {
-            x = -0.5;
+            x = -0.7;
         }
 
         x += err;
 
-        const step = createPlatform(x, 0.025, z, 1, 0.05, 1, 0x757655);
+        width += err/2;
+        depth += err/2;
+
+        const step = createBox(x, 0.025, z, width, 0.05, depth, 0x757655);
 
         platforms.push(step);
 
@@ -220,19 +279,92 @@ function createSteps(){
     }
 }
 
-createSteps();
+createSteps(50);
+
+function createPlatform() {
+
+    const platform = new THREE.Group();
+    const base = createCylinder(0, 0, 0, 6, 6, 1);
+
+    platform.add(base);
+
+    return platform;
+
+}
+
+//scene.add(createPlatform());
+
+function makeFenceXAxis(startX, y, startZ, radius, height, totalBars) {
+    const fence = new THREE.Group();
+    const fenceBarArray = [];
+
+    let x = startX;
+    let z = startZ;
+
+    for (let i = 0; i < totalBars-1; i++) {
+        const bar = createCylinder(x, y, z, radius, radius, height);
+
+        fence.add(bar);
+        fenceBarArray.push(bar);
+
+        const horizontalHeight = height;
+
+        const horizontalBar1 = createCylinder(x + horizontalHeight/2, y + 1, z, radius/2, radius/2, horizontalHeight).rotateZ(1);
+        const horizontalBar2 = createCylinder(x + horizontalHeight/2, y - 1, z, radius/2, radius/2, horizontalHeight).rotateZ(1);
+
+        fence.add(horizontalBar1);
+        fence.add(horizontalBar2);
+
+        x += horizontalHeight;
+    }
+
+    const bar = createCylinder(x, y, z, radius, radius, height);
+
+    fence.add(bar);
+    fenceBarArray.push(bar);
+
+    return fence;
+
+}
+
+scene.add(makeFenceXAxis(0, 2, 3, 0.2, 4, 7));
 
 
-// Directional lighting
-const directional = new THREE.DirectionalLight(
-    0xffffff,
-    2
-);
+function makeFenceZAxis(startX, y, startZ, radius, height, totalBars) {
+    const fence = new THREE.Group();
+    const fenceBarArray = [];
 
-directional.position.set(10, 20, 10);
-directional.castShadow = true;
+    let x = startX;
+    let z = startZ;
 
-scene.add(directional);
+    for (let i = 0; i < totalBars-1; i++) {
+        const bar = createCylinder(x, y, z, radius, radius, height);
+
+        fence.add(bar);
+        fenceBarArray.push(bar);
+
+        const horizontalHeight = height;
+
+        const horizontalBar1 = createCylinder(x, y + 1, z + horizontalHeight/2, radius/2, radius/2, horizontalHeight).rotateX(1);
+        const horizontalBar2 = createCylinder(x, y - 1, z + horizontalHeight/2, radius/2, radius/2, horizontalHeight).rotateX(1);
+
+        fence.add(horizontalBar1);
+        fence.add(horizontalBar2);
+
+        z += horizontalHeight;
+    }
+
+    const bar = createCylinder(x, y, z, radius, radius, height);
+
+    fence.add(bar);
+    fenceBarArray.push(bar);
+
+    return fence;
+
+}
+
+scene.add(makeFenceZAxis(0, 2, 3, 0.2, 4, 7));
+
 
 // scene.add(createPlatform(12, 0.5, 0, 4, 0.5, 4, 0x263b59));
 
