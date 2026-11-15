@@ -309,13 +309,13 @@ function makeFenceXAxis(startX, y, startZ, radius, height, totalBars) {
 
         const horizontalHeight = height;
 
-        const horizontalBar1 = createCylinder(x + horizontalHeight/2, y + 1, z, radius/2, radius/2, horizontalHeight).rotateZ(1);
-        const horizontalBar2 = createCylinder(x + horizontalHeight/2, y - 1, z, radius/2, radius/2, horizontalHeight).rotateZ(1);
+        const horizontalBar1 = createCylinder(x + horizontalHeight/2.2, y + horizontalHeight/5, z, radius/2, radius/2, horizontalHeight).rotateZ(1);
+        const horizontalBar2 = createCylinder(x + horizontalHeight/2.2, y - horizontalHeight/5, z, radius/2, radius/2, horizontalHeight).rotateZ(1);
 
         fence.add(horizontalBar1);
         fence.add(horizontalBar2);
 
-        x += horizontalHeight;
+        x += horizontalHeight/1.1;
     }
 
     const bar = createCylinder(x, y, z, radius, radius, height);
@@ -345,13 +345,13 @@ function makeFenceZAxis(startX, y, startZ, radius, height, totalBars) {
 
         const horizontalHeight = height;
 
-        const horizontalBar1 = createCylinder(x, y + 1, z + horizontalHeight/2, radius/2, radius/2, horizontalHeight).rotateX(1);
-        const horizontalBar2 = createCylinder(x, y - 1, z + horizontalHeight/2, radius/2, radius/2, horizontalHeight).rotateX(1);
+        const horizontalBar1 = createCylinder(x, y + horizontalHeight/5, z + horizontalHeight/2.2, radius/2, radius/2, horizontalHeight).rotateX(1);
+        const horizontalBar2 = createCylinder(x, y - horizontalHeight/5, z + horizontalHeight/2.2, radius/2, radius/2, horizontalHeight).rotateX(1);
 
         fence.add(horizontalBar1);
         fence.add(horizontalBar2);
 
-        z += horizontalHeight;
+        z += horizontalHeight/1.1;
     }
 
     const bar = createCylinder(x, y, z, radius, radius, height);
